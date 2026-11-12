@@ -9,7 +9,8 @@ from datetime import datetime, timedelta, timezone
 load_dotenv()
 SECRET_KEY= os.getenv("SECRET_KEY")
 ALGORITHM= "HS256"
-
+access_time=15
+refresh_day=10
 py= PasswordHash.recommended()
 
 def hash_password(password):
@@ -18,10 +19,26 @@ def hash_password(password):
 def verify_password(plain, hashed):
     return py.verify(plain, hashed)
 
-def create_token(user_id):
+def make_token(user_id, tokent_type, lifetime):
     data={
         "sub": str(user_id),
-        "exp": datetime.now(timezone.utc)+ timedelta(minutes=30)
+        "type": tokent_type,
+        "exp":datetime.now(timezone.utc)+lifetime
     }
     return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+
+def create_access_token(user_id):
+    return make_token(user_id, "access", timedelta(minutes=access_time))
+
+def create_refresh_token(user_id):
+    return make_token(user_id, "refresh", timedelta(days=refresh_day))
+
+def read_token(token, expected_type):
+    try:
+        data=jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if data.get("type")!=expected_type:
+            return None
+        return int(data["sub"])
+    except(jwt.PyJWTError, KeyError, ValueError):
+        return None
 

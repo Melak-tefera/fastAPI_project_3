@@ -8,7 +8,7 @@ from auth import get_current_user
 router= APIRouter(tags=["Posts"])
 @router.post("/posts", response_model=Readpost)
 def create_post(data:Createpost, db: Session=Depends(get_db), current_user: User=Depends(get_current_user)):
-    post= Post(tile=data.title, user_id= current_user.id)
+    post= Post(title=data.title, user_id= current_user.id)
     db.add(post)
     db.commit()
     db.refresh(post)
@@ -16,5 +16,5 @@ def create_post(data:Createpost, db: Session=Depends(get_db), current_user: User
 
 @router.get("/posts", response_model=list[Readpost])
 def my_posts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    post = db.query(Post).filter(Post.user_id == current_user.id).first()
+    post = db.query(Post).filter(Post.user_id == current_user.id).all()
     return post

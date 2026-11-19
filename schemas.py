@@ -16,13 +16,13 @@ class Createpost(BaseModel):
     title: str
     
 class Readpost(BaseModel):
-    id: str
+    id: int
     title: str
-    userid: str
+    user_id: int
     model_config = ConfigDict(from_attributes=True)
 
 class RefreshRequest(BaseModel):
-    refresh_token=str
+    refresh_token:str
     
      
     

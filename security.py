@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 load_dotenv()
 SECRET_KEY= os.getenv("SECRET_KEY")
 ALGORITHM= "HS256"
-access_time=15
+access_time=1
 refresh_day=10
 py= PasswordHash.recommended()
 

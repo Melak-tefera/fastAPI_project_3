@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-
+from typing import Literal
 class Usercreate(BaseModel):
     name:str
     username:str
@@ -24,6 +24,9 @@ class Readpost(BaseModel):
 class RefreshRequest(BaseModel):
     refresh_token:str
     
-     
+
+class Rolechange(BaseModel):
+    role: Literal["user","admin"]
     
+     
     

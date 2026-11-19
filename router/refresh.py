@@ -16,5 +16,5 @@ def refresh(data: RefreshRequest, db: Session=Depends(get_db)):
     user=db.query(User).filter(User.id== user_id).first()
     if not user:
         raise HTTPException(status_code=401, detail="User no longer exists")
-    return {}
+    return {"access_token": create_access_token(user.id), "token_type": "bearer"}
         

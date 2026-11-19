@@ -17,3 +17,8 @@ def get_current_user(token: str=Depends(oauth2_scheme), db:Session=Depends(get_d
         raise HTTPException(status_code=401, detail="user no longer exists")
     
     return user
+
+def require_admin(current_user: User= Depends(get_current_user)):
+    if current_user.role !="admin":
+        raise HTTPException(status_code="403", detail="admins only")
+    return current_user

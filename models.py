@@ -8,6 +8,7 @@ class User(Base):
     name: Mapped[str]= mapped_column(String(100))
     username: Mapped[str]= mapped_column(String(255), unique=True, index=True)
     hashed_password: Mapped[str]= mapped_column(String(255))
+    role: Mapped[str]=mapped_column(String(20), default="user", server_default="user")
     posts: Mapped[list["Post"]]= relationship(back_populates="owner")
     
 class Post(Base):

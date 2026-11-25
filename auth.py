@@ -1,10 +1,11 @@
 
 from fastapi import  Depends, HTTPException
 from sqlalchemy.orm import Session
-from models import User
+from sqlalchemy import update
+from models import User, RefreshToken
 from database import get_db
 from fastapi.security import OAuth2PasswordBearer
-from security import read_token
+from security import read_token , create_refresh_token, read_refresh_token
 
 oauth2_scheme=OAuth2PasswordBearer(tokenUrl="login")
 
@@ -22,3 +23,15 @@ def require_admin(current_user: User= Depends(get_current_user)):
     if current_user.role !="admin":
         raise HTTPException(status_code="403", detail="admins only")
     return current_user
+
+def issue_refresh_token(db:Session, user_id:int):
+    token, jti, expires= create_refresh_token(user_id)
+    db.add(RefreshToken(jti=jti, user_id=user_id, expires=expires))
+    db.commit()
+    return token
+
+def revoke_all(db: Session, user_id: int):
+    db.execute(update(RefreshToken)
+        .where(RefreshToken.user_id == user_id)
+        .values(revoked=True))
+    db.commit()

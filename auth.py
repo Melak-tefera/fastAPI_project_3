@@ -26,7 +26,7 @@ def require_admin(current_user: User= Depends(get_current_user)):
 
 def issue_refresh_token(db:Session, user_id:int):
     token, jti, expires= create_refresh_token(user_id)
-    db.add(RefreshToken(jti=jti, user_id=user_id, expires=expires))
+    db.add(RefreshToken(jti=jti, user_id=user_id, expires_at=expires))
     db.commit()
     return token
 

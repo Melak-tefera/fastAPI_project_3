@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from database import get_db
 from models import User, RefreshToken
 from auth import issue_refresh_token, revoke_all, get_current_user

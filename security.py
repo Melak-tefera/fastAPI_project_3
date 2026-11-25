@@ -3,6 +3,7 @@ import os
 import jwt
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
+import uuid
 
 
 
@@ -31,7 +32,21 @@ def create_access_token(user_id):
     return make_token(user_id, "access", timedelta(minutes=access_time))
 
 def create_refresh_token(user_id):
-    return make_token(user_id, "refresh", timedelta(days=refresh_day))
+    jti= uuid.uuid4().hex
+    expires= datetime.now(timezone.utc)+timedelta(days=refresh_day)
+    data= {"sub": str(user_id), "type": "refresh", "jti":jti, "exp":expires}
+    token= jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+    return token, jti, expires
+
+def read_refresh_token(token):
+    try:
+        data=jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if data.get("type") !="refersh":
+            return None
+        return int(data["sub"]), data["jti"]
+    except (jwt.PyJWKError, KeyError, ValueError):
+        return None
+    
 
 def read_token(token, expected_type):
     try:

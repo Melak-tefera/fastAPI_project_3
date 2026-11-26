@@ -4,9 +4,11 @@ from database import get_db
 from models import User
 from schemas import Usercreate, Userread
 from security import hash_password
+from ratelimit import rate_limit
 
 router = APIRouter(tags=["Register"])
-@router.post("/register", response_model= Userread)
+register_limit = rate_limit(5, 60)
+@router.post("/register", dependencies=[Depends(register_limit)],response_model= Userread)
 def register(name:Usercreate, db: Session=Depends(get_db)):
     taken=db.query(User).filter(User.username==name.username).first()
     if taken:

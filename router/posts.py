@@ -18,3 +18,4 @@ def create_post(data:Createpost, db: Session=Depends(get_db), current_user: User
 def my_posts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     post = db.query(Post).filter(Post.user_id == current_user.id).all()
     return post
+

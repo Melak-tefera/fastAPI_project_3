@@ -1,11 +1,15 @@
 
-from fastapi import  Depends, HTTPException
+from fastapi import  Depends, HTTPException, Request, Response
+import os
+from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 from sqlalchemy import update
 from models import User, RefreshToken
 from database import get_db
 from fastapi.security import OAuth2PasswordBearer
-from security import read_token , create_refresh_token, read_refresh_token
+from security import read_token , create_refresh_token, read_refresh_token, refresh_day
+load_dotenv()
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 
 oauth2_scheme=OAuth2PasswordBearer(tokenUrl="login")
 
@@ -35,3 +39,10 @@ def revoke_all(db: Session, user_id: int):
         .where(RefreshToken.user_id == user_id)
         .values(revoked=True))
     db.commit()
+    
+def set_refresh_cookie(response:Response, token:str):
+    response.set_cookie("refresh_token", token, httponly=True, secure=COOKIE_SECURE, samesite="lax",max_age=refresh_day * 24 * 3600, )
+    
+def clear_refresh_cookie(response: Response):
+    response.delete_cookie("refresh_token", httponly=True, secure=COOKIE_SECURE, samesite="lax")
+    

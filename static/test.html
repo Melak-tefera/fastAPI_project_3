@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+  <body>
+    <h3>Cookie test page</h3>
+
+    <button onclick="login()">Login</button>
+    <button onclick="me()">Call /posts</button>
+    <button onclick="refresh()">Refresh</button>
+    <button onclick="logout()">Logout</button>
+
+
+    <pre id="out">Starting...</pre>
+
+    <script>
+      const API = "http://localhost:8000";
+      let accessToken = null;
+      const out = document.getElementById("out");
+
+      function show(x) {
+        out.textContent = typeof x === "string"
+          ? x
+          : JSON.stringify(x, null, 2);
+      }
+
+      async function call(path, options = {}) {
+        try {
+          return await fetch(API + path, {
+            credentials: "include",
+            ...options,
+          });
+        } catch (e) {
+          show("Network error: " + e);
+          throw e;
+        }
+      }
+
+      async function readJson(r) {
+        try {
+          return await r.json();
+        } catch {
+          return { message: "Non-JSON response" };
+        }
+      }
+
+      async function login() {
+        const form = new URLSearchParams({
+          username: "alem07",
+          password: "alem07",
+        });
+
+        const r = await call("/login", {
+          method: "POST",
+          body: form,
+        });
+
+        const data = await readJson(r);
+
+        if (r.ok) {
+          accessToken = data.access_token || null;
+        } else {
+          accessToken = null;
+        }
+
+        show({
+          status: r.status,
+          success: r.ok,
+          got_access_token: accessToken !== null,
+          response: data,
+        });
+      }
+
+      async function me() {
+        const r = await call("/posts", {
+          headers: {
+            Authorization: "Bearer " + accessToken,
+          },
+        });
+
+        const data = await readJson(r);
+
+        if (r.status === 401) {
+          accessToken = null;
+        }
+
+        show({
+          status: r.status,
+          success: r.ok,
+          body: data,
+        });
+      }
+
+      async function refresh() {
+        const r = await call("/refresh", {
+          method: "POST",
+        });
+
+        const data = await readJson(r);
+
+        if (r.ok) {
+          accessToken = data.access_token || null;
+        } else {
+          accessToken = null;
+        }
+
+        show({
+          status: r.status,
+          success: r.ok,
+          got_new_access_token: accessToken !== null,
+          response: data,
+        });
+      }
+
+      async function logout() {
+        const r = await call("/logout", {
+          method: "POST",
+        });
+
+        const data = await readJson(r);
+        accessToken = null;
+
+        show({
+          status: r.status,
+          success: r.ok,
+          body: data,
+        });
+      }
+
+    </script>
+  </body>
+</html>

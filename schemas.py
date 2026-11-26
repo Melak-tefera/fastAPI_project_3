@@ -21,9 +21,6 @@ class Readpost(BaseModel):
     user_id: int
     model_config = ConfigDict(from_attributes=True)
 
-class RefreshRequest(BaseModel):
-    refresh_token:str
-    
 
 class Rolechange(BaseModel):
     role: Literal["user","admin"]

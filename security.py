@@ -38,14 +38,17 @@ def create_refresh_token(user_id):
     token= jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
     return token, jti, expires
 
-def read_refresh_token(token):
-    try:
-        data=jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        if data.get("type") !="refersh":
-            return None
-        return int(data["sub"]), data["jti"]
-    except (jwt.PyJWKError, KeyError, ValueError):
-        return None
+def read_refresh_token(token: str) -> dict:
+    payload = jwt.decode(
+        token,
+        SECRET_KEY,
+        algorithms=[ALGORITHM],
+    )
+
+    if payload.get("type") != "refresh":
+        raise jwt.InvalidTokenError("Not a refresh token")
+
+    return payload
     
 
 def read_token(token, expected_type):

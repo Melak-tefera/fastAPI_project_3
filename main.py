@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,7 +8,7 @@ from router import register, login, posts, refresh, role
 
 load_dotenv
 app= FastAPI()
-
+app.mount("/static", StaticFiles(directory="static"), name="static")
 origins= [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")]
 app.add_middleware(
     CORSMiddleware,
